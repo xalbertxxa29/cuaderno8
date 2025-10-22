@@ -1,192 +1,189 @@
-/* ================================
-   v52 • Diseño unificado y legible
-   ================================ */
+/* ===========================================
+   style.css — v54
+   Diseño unificado, alto contraste y theme-aware
+   =========================================== */
 
-/* ---- 1) Variables & Reset ---- */
+/* ---------- 1) Variables base ---------- */
 :root{
-  --primary: #e70909;
+  /* Marca */
+  --primary:   #e70909;
+  --primary-2: #b30707;
   --secondary: #5b6675;
 
-  --bg-page: #0b1020;     /* legado */
-  --bg-surface: #f4f6f8;  /* legado */
-  --fg-strong: #111827;   /* legado */
-  --fg: #333;             /* legado */
-  --fg-muted: #6b7280;    /* legado */
+  /* Light (por defecto) */
+  --theme-bg:      #f6f7fb;
+  --theme-surface: #ffffff;
+  --theme-card:    #ffffff;
+  --theme-text:    #0f172a;   /* slate-900 */
+  --theme-muted:   #475569;   /* slate-600 */
+  --theme-border:  #e5e7eb;   /* gray-200 */
+  --theme-accent:  #3b82f6;   /* blue-500 */
+  --theme-accent-2:#2563eb;   /* blue-600 */
 
-  --white: #fff;
-  --border: rgba(0,0,0,.12);
   --radius: 12px;
-  --shadow-1: 0 6px 18px rgba(0,0,0,.15);
-  --shadow-2: 0 12px 36px rgba(0,0,0,.35);
-  --trans: .2s ease;
+  --shadow-1: 0 8px 24px rgba(0,0,0,.10);
+  --shadow-2: 0 16px 40px rgba(0,0,0,.20);
 }
+
+/* Dark */
+html[data-theme="dark"]{
+  --theme-bg:      #0b1120;
+  --theme-surface: rgba(255,255,255,.05);
+  --theme-card:    #141b2f;
+  --theme-text:    #eaeef5;
+  --theme-muted:   #aab1c0;
+  --theme-border:  rgba(255,255,255,.18);
+  --theme-accent:  #60a5fa;   /* blue-400 */
+  --theme-accent-2:#3b82f6;   /* blue-500 */
+
+  --shadow-1: 0 10px 28px rgba(0,0,0,.25);
+  --shadow-2: 0 20px 60px rgba(0,0,0,.45);
+}
+
+/* ---------- 2) Reset mínimo ---------- */
 *,
 *::before,
-*::after{ box-sizing: border-box; margin:0; padding:0; }
+*::after{ box-sizing: border-box; }
 html, body{ height:100%; }
-
-/* ============================
-   Theme switch (light/dark)
-   ============================ */
-:root {
-  --theme-bg: #0b1020;
-  --theme-surface: #f4f6f8;
-  --theme-text: #333;
-  --theme-card: #fff;
-  --theme-muted: #6b7280;
-  --theme-border: rgba(0,0,0,.12);
-}
-/* Dark */
-html[data-theme="dark"] {
-  --theme-bg: #0b1020;
-  --theme-surface: rgba(255,255,255,.04);
-  --theme-text: #e9ecf7;           /* <<< texto claro */
-  --theme-card: #0f152b;
-  --theme-muted: #cdd3ea;          /* <<< muted más claro */
-  --theme-border: rgba(255,255,255,.12);
-}
-/* Light */
-html[data-theme="light"] {
-  --theme-bg: #f3f5fb;
-  --theme-surface: #ffffff;
-  --theme-text: #111827;
-  --theme-card: #ffffff;
-  --theme-muted: #6b7280;
-  --theme-border: rgba(0,0,0,.1);
-}
-
-/* ---- 2) Fondo y tipografía ---- */
 body{
+  margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-  color: var(--theme-text); /* usa color del tema */
-  line-height: 1.5;
-  display:flex; justify-content:center; align-items:center;
-  min-height: 100vh;
+  color: var(--theme-text);
   background:
-    radial-gradient(1200px 600px at 20% 0%, #18213c 0%, transparent 60%),
-    radial-gradient(900px 500px at 110% 30%, #101a33 0%, transparent 60%),
+    radial-gradient(1200px 600px at 20% 0%, color-mix(in oklab, #1a2445 85%, transparent) 0%, transparent 60%),
+    radial-gradient(900px 500px at 110% 30%, color-mix(in oklab, #0f1a33 80%, transparent) 0%, transparent 60%),
     var(--theme-bg);
+  line-height: 1.5;
+  display:flex; justify-content:center; align-items:flex-start;
+  min-height: 100vh;
 }
 
-/* ---- 3) Contenedores ---- */
-.container, .form-container, .login-container{
-  width: 100%; max-width: 900px;
-  margin: 2rem 1rem; padding: 1.5rem;
+/* ---------- 3) Contenedores ---------- */
+.container,
+.form-container,
+.login-container{
+  width: 100%;
+  max-width: 900px;
+  margin: 1.25rem 1rem;
+  padding: 1.25rem;
   background: var(--theme-surface);
   border-radius: var(--radius);
+  border: 1px solid var(--theme-border);
   box-shadow: var(--shadow-1);
   position: relative;
 }
 .login-container{
   max-width: 420px;
-  background: var(--theme-surface);
-  border: 1px solid var(--theme-border);
+  box-shadow: var(--shadow-2);
+}
+
+/* ---------- 4) Encabezados / títulos ---------- */
+.page-title{
+  font-weight: 800;
+  font-size: 1.65rem;
+  text-align: center;
   color: var(--theme-text);
-  box-shadow: var(--shadow-2);
+  margin: .5rem 0 1rem;
 }
 
-/* ---- 4) Header/logo ---- */
-.site-header{ position: absolute; top:1rem; left:1rem; z-index:10; }
-.header-logo{ height: 120px; animation: pulse 3s infinite; }
-
-/* ---- 5) Tabs (login/registro) ---- */
-.tabs{ display:flex; gap:10px; border-bottom: 1px solid var(--theme-border); }
-.tab-link{
-  background: transparent; border:0; color:var(--theme-muted); font-weight:700;
-  padding: 10px 12px; cursor:pointer; transition: color var(--trans), border-color var(--trans);
-  border-bottom: 2px solid transparent;
-}
-.tab-link:hover, .tab-link.active{ color:var(--white); border-bottom-color: var(--primary); }
-.tab-content{ display:none; }
-.login-title{ margin: 1rem 0 1rem; font-size: 1.6rem; }
-
-/* Tarjeta de login/registro */
-.login-card{
-  background: var(--theme-card); color: var(--theme-text);
-  border: 1px solid var(--theme-border);
-  border-radius: 16px; padding: 16px;
-  box-shadow: var(--shadow-2);
-}
-
-/* ---- 6) Inputs ---- */
+/* ---------- 5) Grupos de entrada ---------- */
 .input-group{ margin-bottom: 1rem; text-align:left; }
 .input-group label{
-  display:block; margin-bottom:.5rem; font-weight:700; color: var(--theme-text); /* <<< blanco en dark */
+  display:block; margin-bottom:.5rem; font-weight:700; color: var(--theme-text);
 }
 
+/* Campos */
 .input-group input,
 .input-group select,
 .input-group textarea{
   width:100%; font: inherit; font-size: 1rem;
   padding: .75rem 1rem; border-radius: 10px;
-  border:1px solid var(--theme-border); background:#fff; color:#111827;
-  transition: box-shadow var(--trans), border-color var(--trans), background var(--trans);
+  border:1px solid var(--theme-border);
+  background:#fff; color:#0f172a;
+  transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
 }
 html[data-theme="dark"] .input-group input,
 html[data-theme="dark"] .input-group select,
 html[data-theme="dark"] .input-group textarea{
-  background:#0b1020; color:#e9ecf7; border:1px solid var(--theme-border);
+  background: rgba(255,255,255,.08);
+  color: var(--theme-text);
+  border: 1px solid var(--theme-border);
 }
-.input-group textarea{ resize: vertical; min-height: 90px; }
+.input-group textarea{ resize: vertical; min-height: 96px; }
 
+/* Focus visible */
 .input-group input:focus,
 .input-group select:focus,
 .input-group textarea:focus{
-  outline: none; border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(231,9,9,.18);
+  outline: none;
+  border-color: var(--theme-accent);
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--theme-accent) 45%, transparent);
 }
 
-/* Placeholders visibles */
-::placeholder{ color:#666; }
+/* Placeholder */
+::placeholder{ color:#667085; }
 html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
 
-/* ---- 7) Botones ---- */
-.btn-primary, #login-btn, #register-btn, #guardar-btn{
+/* Input + botón (select con "+") */
+.input-with-button{ display:flex; align-items:center; gap:.5rem; }
+.btn-add, .btn-add-icon{
+  width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center;
+  background: var(--theme-accent); color:#fff; border:0; border-radius: 10px;
+  font-weight:800; box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  transition: transform .15s ease, filter .2s ease, background .2s ease;
+}
+.btn-add:hover, .btn-add-icon:hover{ transform: translateY(-1px); background: var(--theme-accent-2); }
+
+/* ---------- 6) Botones ---------- */
+.btn-primary,
+#login-btn, #register-btn, #guardar-btn{
   display:block; width:100%; text-align:center;
   background: var(--primary); color:#fff; border:0; border-radius: 12px;
   font-weight:800; padding: .9rem 1rem; cursor:pointer;
   box-shadow: 0 10px 30px rgba(231,9,9,.35);
-  transition: transform var(--trans), box-shadow var(--trans), filter var(--trans);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
 }
+.btn-primary:hover{ transform: translateY(-2px); filter: brightness(1.03); }
+.btn-primary:active{ transform: translateY(-1px) scale(.99); }
+
 .btn-secondary{
   display:block; width:100%; text-align:center;
-  background:#6b7583; color:#fff; border:0; border-radius: 12px;
+  background: color-mix(in oklab, var(--theme-card) 72%, #000 28%);
+  color:#fff; border:0; border-radius: 12px;
   font-weight:700; padding: .85rem 1rem; cursor:pointer;
   box-shadow: 0 6px 18px rgba(0,0,0,.25);
-  transition: transform var(--trans), box-shadow var(--trans), filter var(--trans);
+  transition: transform .15s ease, box-shadow .2s ease, filter .2s ease;
 }
-.btn-primary:hover, .btn-secondary:hover{ transform: translateY(-2px); filter: brightness(1.03); }
-.button-group{ display:flex; gap:12px; margin-top: 1rem; }
+html[data-theme="light"] .btn-secondary{ color: #111827; }
+.btn-secondary:hover{ transform: translateY(-1px); filter:brightness(1.05); }
+.button-group{ display:flex; gap:.75rem; margin-top: 1rem; }
 .button-group > *{ flex:1; }
-
-/* Botón + compacto/estético */
-.btn-add, .btn-add-icon{
-  width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center;
-  background: var(--secondary); color:#fff; border:0; border-radius: 10px;
-  font-weight:800; box-shadow: 0 6px 18px rgba(0,0,0,.25);
-  transition: transform var(--trans), filter var(--trans);
+.pagination-controls{
+  display:flex; justify-content:center; gap:.75rem; margin-top:1.1rem;
 }
-.btn-add:hover, .btn-add-icon:hover{ transform: translateY(-1px); filter:brightness(1.05); }
-.btn-add i, .btn-add-icon i{ font-size: 16px; }
+.pagination-controls button{ width:auto; padding:.7rem 1.1rem; }
+.pagination-controls button:disabled{ background:#d1d5db; cursor:not-allowed; transform:none; box-shadow:none; }
 
-/* ---- 8) Input con botón (select + +) ---- */
-.input-with-button{ display:flex; align-items:center; gap:.5rem; }
-.searchable-dropdown{ position:relative; flex:1; }
-.dropdown-content{
-  position:absolute; left:0; right:0; top:calc(100% + 4px);
-  background:#fff; border:1px solid var(--border); border-radius: 10px;
-  max-height: 260px; overflow:auto; box-shadow: var(--shadow-1); display:none; z-index:100;
+/* ---------- 7) Enlaces / botón Atrás ---------- */
+.btn-back{
+  display:inline-flex; align-items:center; gap:.5rem;
+  background: var(--secondary); color:#fff; text-decoration:none;
+  border-radius: 12px; padding: .6rem .9rem; font-weight:800;
+  transition: transform .15s ease, filter .2s ease;
 }
-.dropdown-item{ padding:.45rem .6rem; cursor:pointer; }
-.dropdown-item:hover, .dropdown-item.active{ background: rgba(0,0,0,.04); }
+.btn-back:hover{ transform: translateY(-1px); filter: brightness(1.05); }
+.btn-back-bottom{ position: static; margin-top: 1rem; }
 
-/* ---- 9) Imágenes & Firma ---- */
-#foto-preview{
+/* ---------- 8) Imagen & Firma ---------- */
+#foto-preview,
+.preview-thumb {
   display:block; width:100%; height:auto; margin-top:.6rem;
-  border:1px solid var(--border); border-radius: 10px;
+  max-height: 240px; object-fit: contain;
+  border:1px solid var(--theme-border); border-radius: 10px;
+  background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.10);
 }
 
-/* Firma (canvas) */
+/* Canvases de firma (coinciden con webview.css) */
 #firma-canvas,
 #relevo-firma-canvas{
   width:100%; height:180px; display:block;
@@ -194,33 +191,36 @@ html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
   touch-action: none;
 }
 
-/* ---- 10) Overlays & Modales ---- */
+/* ---------- 9) Modales ---------- */
 .modal-overlay{
   position: fixed; inset:0; display:flex; justify-content:center; align-items:flex-start;
   background: rgba(0,0,0,.55); backdrop-filter: blur(2px);
   padding:16px; z-index: 1000; overflow-y:auto; -webkit-overflow-scrolling: touch;
 }
-.modal-overlay[hidden], .modal-overlay:is([style*="display: none"]){ display:none !important; }
+.modal-overlay[hidden],
+.modal-overlay:is([style*="display: none"]){ display:none !important; }
 .modal-box{
-  width: min(560px, 96vw); background:var(--theme-card); color:var(--theme-text);
+  width: min(560px, 96vw);
+  background: var(--theme-card); color: var(--theme-text);
   border-radius: 16px; padding:16px; box-shadow: var(--shadow-2);
   border: 1px solid var(--theme-border);
   max-height: calc(100svh - 32px); overflow:auto;
 }
 @supports not(height: 100svh){ .modal-box{ max-height: calc(100vh - 32px); } }
 
-/* UI overlay (UI.showOverlay) */
+/* Overlay genérico (UI.showOverlay) */
 #app-overlay{
   position: fixed; inset:0; display:none; align-items:center; justify-content:center;
   background: rgba(0,0,0,.45); backdrop-filter: blur(2px); z-index: 1200;
 }
 
-/* ---- 11) Páginas de listas (consignas/registros) ---- */
+/* ---------- 10) Páginas de listas ---------- */
 .list-page-container{ width:100%; max-width:900px; margin:0 auto; padding: 2rem 1.5rem; }
-.list-page-header{ display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom: 1.25rem; }
+.list-page-header{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:1rem; margin-bottom: 1.25rem;
+}
 .list-page-header .btn-back{ position: static; width:auto; }
-
-.page-title{ color: var(--theme-text); font-size:1.65rem; text-align:center; margin-bottom:1rem; }
 
 /* Filtros */
 .filters-container{
@@ -239,8 +239,8 @@ html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
 }
 .list-card-head,
 .list-card-header{ display:flex; justify-content:space-between; align-items:center; gap:.75rem; margin-bottom:.4rem; }
-.list-card-title{ font-size:1.05rem; margin:0; color:var(--theme-text); }
-.list-card-desc{ color:var(--theme-text); opacity:.9; white-space:pre-wrap; margin:.35rem 0 .25rem; }
+.list-card-title{ font-size:1.05rem; margin:0; color:var(--theme-text); font-weight:800; }
+.list-card-desc{ color:var(--theme-text); opacity:.92; white-space:pre-wrap; margin:.35rem 0 .25rem; }
 .list-card-meta{ display:flex; flex-wrap:wrap; gap:.4rem; margin-top:.5rem; }
 .chip{
   display:inline-block; padding:.25rem .55rem; border-radius:999px;
@@ -256,10 +256,9 @@ html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
 
 /* Imagen compacta en tarjetas */
 .registro-imagen{
-  display:block; width:100%; height:auto;
-  max-height: 200px;
+  display:block; width:100%; height:auto; max-height: 200px;
   object-fit: contain;
-  border-radius:10px; border:1px solid var(--border);
+  border-radius:10px; border:1px solid var(--theme-border);
   margin-top:.5rem; cursor: zoom-in;
 }
 
@@ -267,14 +266,17 @@ html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
 .lightbox{ position: fixed; inset:0; z-index: 1100; display:grid; place-items:center; }
 .lightbox[hidden]{ display:none; }
 .lightbox-backdrop{ position:absolute; inset:0; background: rgba(0,0,0,.6); backdrop-filter: blur(2px); }
-.lightbox-content{ position:relative; background:#111; padding:.75rem; border-radius:12px; max-width:90vw; max-height:90vh; box-shadow: var(--shadow-2); }
+.lightbox-content{
+  position:relative; background:#111; padding:.75rem; border-radius:12px;
+  max-width:90vw; max-height:90vh; box-shadow: var(--shadow-2);
+}
 .lightbox-content img{ max-width:86vw; max-height:80vh; display:block; border-radius:8px; }
 .lightbox-close{
   position:absolute; top:-14px; right:-14px; width:36px; height:36px; border-radius:50%;
   background: var(--primary); color:#fff; border:0; cursor:pointer; font-size:20px; line-height:36px;
 }
 
-/* ---- 12) Menú ---- */
+/* ---------- 11) Menú ---------- */
 .menu-wrapper{ display:flex; justify-content:center; align-items:center; width:100%; padding:1rem; background:none; }
 .menu-card-improved{
   background: var(--theme-card); color: var(--theme-text);
@@ -292,88 +294,60 @@ html[data-theme="dark"] ::placeholder{ color:#9aa3bf; }
   display:flex; align-items:center; gap:.8rem; text-decoration:none;
   background: var(--theme-card); color: var(--theme-text);
   padding: .9rem 1rem; border-radius: 12px; border: 1px solid var(--theme-border);
-  transition: transform var(--trans), box-shadow var(--trans), background var(--trans);
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
 }
 .menu-button-improved:hover{ transform: translateY(-2px); background:#eef2f7; box-shadow: 0 8px 20px rgba(0,0,0,.06); }
 html[data-theme="dark"] .menu-button-improved:hover{ background:#141a31; }
-.menu-button-improved i{ color: var(--primary); font-size:1.4rem; width:28px; text-align:center; }
+.menu-button-improved i{ color: var(--primary); font-size:1.35rem; width:28px; text-align:center; }
 .logout-button{ background:none; border:0; color: var(--theme-muted); font-weight:700; cursor:pointer; }
 .logout-button:hover{ color: var(--primary); }
 
-/* ---- 13) Botón Atrás ---- */
-.btn-back{
-  display:inline-flex; align-items:center; gap:.5rem;
-  background: var(--secondary); color:#fff; text-decoration:none;
-  border-radius: 12px; padding: .6rem .9rem; font-weight:800;
-  position:absolute; top:1rem; right:1rem;
-  transition: transform var(--trans), filter var(--trans);
-}
-.btn-back:hover{ transform: translateY(-1px); filter: brightness(1.05); }
-.btn-back-bottom{ position: static; margin-top: 1rem; }
-
-/* ---- 14) Paginación ---- */
-.pagination-controls{
-  display:flex; justify-content:center; gap:.75rem; margin-top:1.2rem;
-}
-.pagination-controls button{ width:auto; padding:.7rem 1.1rem; }
-.pagination-controls button:disabled{ background:#d1d5db; cursor:not-allowed; transform:none; box-shadow:none; }
-
-/* ---- 15) Utilidades ---- */
-.muted{ color: var(--theme-muted); }
-small, #docHelp{ color: var(--theme-muted); }
-img.thumb{ max-width:220px; max-height:220px; border-radius:8px; border:1px solid #ccc; margin-top:10px; display:block; }
-input[type="file"]{ display:none; }
-
-/* List items (por ejemplo en Salida de Peatón) */
+/* ---------- 12) List genéricas (ej. Salida de Peatón) ---------- */
 .list{ display: grid; gap:.6rem; }
 .list-item{
   display:block; width:100%; text-align:left;
   background: var(--theme-card); color: var(--theme-text);
   border: 1px solid var(--theme-border);
   border-radius: 12px; padding: .75rem .9rem; cursor:pointer;
-  transition: transform var(--trans), background var(--trans);
+  transition: transform .15s ease, background .2s ease;
 }
 .list-item:hover{ transform: translateY(-1px); }
 .list-item .title{ color: var(--theme-text); font-weight:800; }
 .list-item .muted{ color: var(--theme-muted); }
 
-/* ---- 16) Responsivo ---- */
+/* ---------- 13) Utilidades ---------- */
+.muted{ color: var(--theme-muted); }
+small, #docHelp{ color: var(--theme-muted); }
+img.thumb{ max-width:220px; max-height:220px; border-radius:8px; border:1px solid var(--theme-border); margin-top:10px; display:block; }
+input[type="file"]{ display:none; }
+
+/* ---- Fix botón superior (notch) en index ---- */
+.login-container{ margin: 1.6rem auto !important; overflow: visible !important; position: relative; }
+.btn-top-right{
+  position: absolute;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  right: calc(8px + env(safe-area-inset-right, 0px));
+  z-index: 30; width: auto; padding: .45rem .7rem;
+}
+.tabs{ display:flex; gap:10px; border-bottom: 1px solid var(--theme-border); margin-top: .5rem; }
+.tab-link{
+  background: transparent; border:0; color:var(--theme-muted); font-weight:700;
+  padding: 10px 12px; cursor:pointer; transition: color .2s ease, border-color .2s ease;
+  border-bottom: 2px solid transparent;
+}
+.tab-link:hover, .tab-link.active{ color:var(--theme-text); border-bottom-color: var(--primary); }
+.tab-content{ display:none; }
+.login-title{ margin: 1rem 0 1rem; font-size: 1.6rem; }
+
+/* ---------- 14) Responsive ---------- */
 @media (max-width: 768px){
-  body{ align-items:flex-start; padding: 1.2rem 0; }
-  .container, .form-container, .login-container{ margin: 1rem; padding: 1.1rem; }
-  .header-logo{ height: 92px; }
-  .btn-back{ position: static; width:100%; justify-content:center; margin-bottom: .9rem; }
+  body{ padding: 1.2rem 0; }
+  .container, .form-container, .login-container{ margin: .9rem; padding: 1rem; }
+  .btn-back{ width:100%; justify-content:center; }
   .list-page-header{ flex-direction: column-reverse; align-items:stretch; }
   .filters-container{ flex-direction: column; }
   .filters-container > *{ width:100%; }
 }
 
-/* ---- 17) Animaciones ---- */
+/* ---------- 15) Animaciones ---------- */
 @keyframes pulse{ 0%,100%{ transform: scale(1); } 50%{ transform: scale(1.05); } }
-
-/* ==== Fix botón superior oculto en index (WebView/notch) ==== */
-.login-container{ 
-  margin: 2rem auto !important;
-  overflow: visible !important;
-  position: relative;
-}
-.btn-top-right{
-  position: absolute;
-  top: calc(8px + env(safe-area-inset-top, 0px));
-  right: calc(8px + env(safe-area-inset-right, 0px));
-  z-index: 30;
-  width: auto;
-  padding: .45rem .7rem;
-}
-.tabs{ margin-top: .5rem; }
-@media (max-width: 768px){
-  .btn-top-right{ top: calc(10px + env(safe-area-inset-top, 0px)); right: 10px; }
-}
-
-/* Miniatura de foto en formularios */
-.preview-thumb {
-  width: 96px; height: 96px; object-fit: cover;
-  border-radius: 10px; border: 1px solid var(--theme-border);
-  background: #fff; display: block; margin-top: .5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,.12);
-}

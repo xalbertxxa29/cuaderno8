@@ -34,13 +34,13 @@ const PRECACHE_URLS = [
   './add_puesto.html',
 
   // CSS (mantén versiones coordinadas)
-  './style.css?v=52',
-  './webview.css?v=52',
+  './style.css?v=54',
+  './webview.css?v=54',
 
   // JS propios (coordina todos a v51 en los HTML)
   './firebase-config.js?v=51',
   './initFirebase.js?v=51',
-  './auth.js?v=51',
+  './auth.js?v=55',
   './menu.js?v=53a',
   './ui.js?v=51',
   './webview.js?v=51',
@@ -50,7 +50,7 @@ const PRECACHE_URLS = [
   './salida.js?v=51',
 
   './ingresar_informacion.js?v=51',
-  './registrar_incidente.js?v=51',
+  './registrar_incidente.js?v=57',
   './ver_consignas.js?v=51',
   './registros.js?v=51',
   './consigna_permanente.js?v=51',
