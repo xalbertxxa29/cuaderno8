@@ -50,7 +50,7 @@ const PRECACHE_URLS = [
   './salida.js?v=51',
 
   './ingresar_informacion.js?v=51',
-  './registrar_incidente.js?v=57',
+  './registrar_incidente.js?v=59',
   './ver_consignas.js?v=51',
   './registros.js?v=51',
   './consigna_permanente.js?v=51',
