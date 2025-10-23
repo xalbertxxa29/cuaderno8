@@ -1,20 +1,20 @@
-/* sw.js (v51)
+/* sw.js (v61)
    Estrategias:
-   - HTML (navegación): network-first con fallback a caché (mejor frescura).
-   - JS/CSS/Workers: stale-while-revalidate (rápido + actualización en bg).
+   - HTML (navigate): network-first con timeout + navigationPreload + fallback a caché (ignoreSearch).
+   - JS/CSS/Workers: stale-while-revalidate.
    - Imágenes/Fonts: cache-first.
-   - NO cachea métodos ≠ GET. Evita interceptar Firebase/Google (Auth/FS/Storage).
-   - Precarga de páginas/JS/CSS críticos. Limpieza de versiones viejas.
-   - Skip waiting + clients.claim + helper con timeout para navegaciones.
+   - No intercepta métodos ≠ GET. Evita Firebase/Google (Auth/FS/Storage/CDN).
+   - Precarga de locales críticos + limpieza de versiones viejas.
+   - skipWaiting + clients.claim + autorefresh suave.
 */
 
-const SW_VERSION = 'v51';
+const SW_VERSION = 'v61';
 const PRECACHE   = `precache-${SW_VERSION}`;
 const RUNTIME    = `runtime-${SW_VERSION}`;
 
-/* ==== Precarga (ajusta si agregas/quitas archivos) ==== */
+/* ==== Precarga local (ajusta si cambias ?v=) ==== */
 const PRECACHE_URLS = [
-  // Páginas principales
+  // Páginas
   './',
   './index.html',
   './menu.html',
@@ -25,53 +25,43 @@ const PRECACHE_URLS = [
   './ingresar_consigna.html',
   './consigna_permanente.html',
   './consigna_temporal.html',
-  './peatonal.html?v=51',
-  './salida.html?v=51',
+  './peatonal.html?v=60',
+  './salida.html?v=60',
 
-  // Altas rápidas (iframes)
+  // Altas rápidas
   './add_cliente_unidad.html',
   './add_unidad.html',
   './add_puesto.html',
 
-  // CSS (mantén versiones coordinadas)
-  './style.css?v=54',
-  './webview.css?v=54',
+  // CSS locales
+  './style.css?v=60',
+  './webview.css?v=60',
 
-  // JS propios (coordina todos a v51 en los HTML)
-  './firebase-config.js?v=51',
-  './initFirebase.js?v=51',
-  './auth.js?v=55',
-  './menu.js?v=53a',
-  './ui.js?v=51',
-  './webview.js?v=51',
-  './offline-queue.js?v=51',
-  './sync.js?v=51',
-  '/.peatonal.js?v=51',
-  './salida.js?v=51',
-
-  './ingresar_informacion.js?v=51',
-  './registrar_incidente.js?v=59',
-  './ver_consignas.js?v=51',
-  './registros.js?v=51',
-  './consigna_permanente.js?v=51',
-  './consigna_temporal.js?v=51',
+  // JS locales
+  './firebase-config.js?v=60',
+  './initFirebase.js?v=60',
+  './auth.js?v=56',                 // <- usa la versión real que tienes en producción
+  './menu.js?v=53a',                // si actualizas, sincroniza aquí
+  './ui.js?v=60',
+  './webview.js?v=60',
+  './offline-queue.js?v=60',
+  './sync.js?v=60',
+  './peatonal.js?v=60',
+  './salida.js?v=60',
+  './ingresar_informacion.js?v=60',
+  './registrar_incidente.js?v=60',  // sincroniza con tu HTML
+  './ver_consignas.js?v=60',
+  './registros.js?v=60',
+  './consigna_permanente.js?v=60',
+  './consigna_temporal.js?v=60',
 
   // PWA
   './manifest.json',
   './imagenes/logo_192.png',
   './imagenes/logo_512.png',
-
-  // Librerías externas críticas
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js',
-  'https://www.gstatic.com/firebasejs/10.9.0/firebase-storage-compat.js',
-  'https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.js',
-  'https://cdn.jsdelivr.net/npm/signature_pad@4.0.0/dist/signature_pad.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css',
 ];
 
-/* ================== Helpers ================== */
+/* ========= Helpers ========= */
 const isHTMLNavigation = (req) =>
   req.mode === 'navigate' ||
   (req.method === 'GET' && (req.headers.get('accept') || '').includes('text/html'));
@@ -94,11 +84,13 @@ const isFirebaseOrGoogle = (url) => {
     h.includes('googleapis.com') ||
     h.includes('gstatic.com') ||
     h.includes('firebaseio.com') ||
-    h.includes('googlesyndication.com')
+    h.includes('firebasestorage.googleapis.com') ||
+    h.includes('googlesyndication.com') ||
+    h.includes('googleusercontent.com')
   );
 };
 
-// fetch con timeout (navegaciones)
+// fetch con timeout (para navegaciones)
 const fetchWithTimeout = (req, ms = 8000) => {
   const ctrl = new AbortController();
   const id = setTimeout(() => ctrl.abort(), ms);
@@ -106,18 +98,28 @@ const fetchWithTimeout = (req, ms = 8000) => {
     .finally(() => clearTimeout(id));
 };
 
-/* ================== Install / Activate ================== */
+/* ========= Install ========= */
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(PRECACHE)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .catch(() => {})
-      .then(() => self.skipWaiting())
-  );
+  event.waitUntil((async () => {
+    try {
+      const cache = await caches.open(PRECACHE);
+      await cache.addAll(PRECACHE_URLS);
+    } catch (e) {
+      // Precarga best-effort (puede fallar en primer arranque sin red)
+    } finally {
+      await self.skipWaiting();
+    }
+  })());
 });
 
+/* ========= Activate ========= */
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
+    // Navigation Preload para acelerar navigate si hay conexión
+    if ('navigationPreload' in self.registration) {
+      try { await self.registration.navigationPreload.enable(); } catch {}
+    }
+    // Limpieza de caches viejos
     const keys = await caches.keys();
     await Promise.all(keys.map((k) => {
       if (![PRECACHE, RUNTIME].includes(k)) return caches.delete(k);
@@ -126,29 +128,40 @@ self.addEventListener('activate', (event) => {
   })());
 });
 
-/* ================== Fetch ================== */
+/* ========= Fetch ========= */
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Métodos no-GET: no interceptar
+  // Métodos no-GET o esquemas no HTTP: no interceptar
   if (request.method !== 'GET') return;
-
   const url = new URL(request.url);
+  if (!['http:', 'https:'].includes(url.protocol)) return;
 
-  // Dejar pasar Firebase/Google (Auth/Firestore/Storage/CDN)
+  // Dejar pasar Firebase/Google/CDN
   if (isFirebaseOrGoogle(url)) return;
 
-  // Navegación HTML → network-first
+  // Navegación HTML → network-first (+preload) con fallback a caché
   if (isHTMLNavigation(request)) {
     event.respondWith((async () => {
       const precache = await caches.open(PRECACHE);
+      // 1) Usa navigationPreload si está disponible
+      try {
+        const preload = event.preloadResponse ? await event.preloadResponse : null;
+        if (preload) {
+          if (canCache(request)) precache.put(request, preload.clone()).catch(() => {});
+          return preload;
+        }
+      } catch {}
+      // 2) Network con timeout
       try {
         const fresh = await fetchWithTimeout(request, 8000);
         if (canCache(request)) precache.put(request, fresh.clone()).catch(() => {});
         return fresh;
       } catch {
+        // 3) Fallback ignorando querystring
         const match = await precache.match(request, { ignoreSearch: true });
         if (match) return match;
+        // 4) Fallbacks amistosos
         return (await precache.match('./menu.html')) ||
                (await precache.match('./index.html')) ||
                Response.error();
@@ -177,9 +190,9 @@ self.addEventListener('fetch', (event) => {
   // JS/CSS/Workers → stale-while-revalidate
   if (
     request.destination === 'script' ||
-    request.destination === 'style' ||
+    request.destination === 'style'  ||
     request.destination === 'worker' ||
-    request.url.endsWith('.js') ||
+    request.url.endsWith('.js')      ||
     request.url.endsWith('.css')
   ) {
     event.respondWith((async () => {
@@ -208,7 +221,14 @@ self.addEventListener('fetch', (event) => {
   })());
 });
 
-/* ================== Mensajes ================== */
-self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') self.skipWaiting();
+/* ========= Mensajes ========= */
+self.addEventListener('message', async (event) => {
+  if (event.data === 'SKIP_WAITING') {
+    self.skipWaiting();
+    return;
+  }
+  if (event.data === 'CLEAR_CACHE') {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
 });

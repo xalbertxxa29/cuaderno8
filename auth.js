@@ -1,4 +1,4 @@
-// auth.js v55 — Login + Registro + Catálogos (Cliente/Unidad/Puesto) con compatibilidad de esquemas
+// auth.js v56 — Login + Registro + Catálogos (Cliente/Unidad/Puesto) con compatibilidad de esquemas
 (() => {
   if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
@@ -13,27 +13,32 @@
   };
   const $ = (id) => document.getElementById(id);
 
-  // Tabs
+  /* ===================== TABS ===================== */
   const tabLogin    = $('tab-login');
   const tabRegister = $('tab-register');
   const loginTab    = $('login-tab');
   const registerTab = $('register-tab');
-  tabLogin?.addEventListener('click', () => {
-    tabLogin.classList.add('active'); tabRegister.classList.remove('active');
-    loginTab.style.display='block'; registerTab.style.display='none';
-  });
-  tabRegister?.addEventListener('click', () => {
-    tabRegister.classList.add('active'); tabLogin.classList.remove('active');
-    registerTab.style.display='block'; loginTab.style.display='none';
-  });
 
-  // Selects
+  function showTab(which){
+    if (!loginTab || !registerTab || !tabLogin || !tabRegister) return;
+    const showLogin = (which === 'login');
+    tabLogin.classList.toggle('active', showLogin);
+    tabRegister.classList.toggle('active', !showLogin);
+    loginTab.style.display    = showLogin ? 'block' : 'none';
+    registerTab.style.display = showLogin ? 'none'  : 'block';
+  }
+
+  tabLogin?.addEventListener('click',   () => showTab('login'));
+  tabRegister?.addEventListener('click',() => showTab('register'));
+
+  /* ============ SELECTS de Registro ============ */
   const selCliente = $('reg-cliente');
   const selUnidad  = $('reg-unidad');
   const selPuesto  = $('reg-puesto');
 
   // ========= Carga CLIENTES =========
   async function loadClientes() {
+    if (!selCliente || !selUnidad || !selPuesto) return;
     selCliente.innerHTML = '<option value="" disabled selected>Cargando…</option>';
     selUnidad.innerHTML  = '<option value="" disabled selected>Selecciona un cliente…</option>';
     selUnidad.disabled   = true;
@@ -67,6 +72,7 @@
 
   // ========= Carga UNIDADES (multi-esquema) =========
   async function loadUnidades(cliente) {
+    if (!selUnidad || !selPuesto) return;
     selUnidad.innerHTML = '<option value="" disabled selected>Cargando…</option>';
     selUnidad.disabled  = true;
     selPuesto.innerHTML = '<option value="" disabled selected>Selecciona una unidad…</option>';
@@ -119,6 +125,7 @@
 
   // ========= Carga PUESTOS (multi-esquema) =========
   async function loadPuestos(cliente, unidad) {
+    if (!selPuesto) return;
     selPuesto.innerHTML = '<option value="" disabled selected>Cargando…</option>';
     selPuesto.disabled  = true;
 
@@ -175,7 +182,7 @@
   selCliente?.addEventListener('change', (e) => loadUnidades(e.target.value));
   selUnidad?.addEventListener('change', (e) => loadPuestos(selCliente.value, e.target.value));
 
-  // ========= Modales “+” =========
+  /* ============ Modales “+” ============ */
   const open  = (el) => el && (el.style.display = 'flex');
   const close = (el) => el && (el.style.display = 'none');
 
@@ -219,13 +226,13 @@
     if (!uni) return UX.alert('Aviso','Escribe la unidad.');
     try {
       UX.show('Guardando unidad…');
-      // Creamos el doc de la unidad y mantenemos compatibilidad
+      // Doc de la unidad + compat
       const base = db.collection('CLIENTE_UNIDAD').doc(cli);
       await base.collection('UNIDADES').doc(uni)
         .set({ puestos: [], actualizadoEn: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
-      await base.set({ 
-        unidades: firebase.firestore.FieldValue.arrayUnion(uni) 
-      }, { merge: true }); // si usas array
+      await base.set({
+        unidades: firebase.firestore.FieldValue.arrayUnion(uni)
+      }, { merge: true });
 
       close(modalAddUnidad);
       await loadUnidades(cli);
@@ -272,11 +279,11 @@
     } finally { UX.hide(); }
   });
 
-  // ========= Login =========
+  /* ============ Login ============ */
   $('login-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const user = String(($('login-email').value||'')).trim();
-    const pass = String(($('login-pass').value||''));
+    const user = String(($('login-email')?.value||'')).trim();
+    const pass = String(($('login-pass')?.value||''));
     if (!user || !pass) return UX.alert('Aviso','Completa usuario y contraseña.');
     const email = user.includes('@') ? user : `${user}@lidercontrol.local`;
     try {
@@ -294,19 +301,19 @@
     }
   });
 
-  // ========= Registro =========
+  /* ============ Registro ============ */
   $('register-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const id   = String(($('reg-id').value||'')).trim();
-    const nom  = String(($('reg-nombres').value||'')).trim();
-    const ape  = String(($('reg-apellidos').value||'')).trim();
-    const cli  = String(selCliente.value||'').trim();
-    const uni  = String(selUnidad.value||'').trim();
-    const pue  = String(selPuesto.value||'').trim();
-    const tipo = String(($('reg-tipo').value||'AGENTE')).trim().toUpperCase();
-    const p1   = String(($('reg-pass1').value||'')); 
-    const p2   = String(($('reg-pass2').value||''));
+    const id   = String(($('reg-id')?.value||'')).trim();
+    const nom  = String(($('reg-nombres')?.value||'')).trim();
+    const ape  = String(($('reg-apellidos')?.value||'')).trim();
+    const cli  = String(selCliente?.value||'').trim();
+    const uni  = String(selUnidad?.value||'').trim();
+    const pue  = String(selPuesto?.value||'').trim();
+    const tipo = String(($('reg-tipo')?.value||'AGENTE')).trim().toUpperCase();
+    const p1   = String(($('reg-pass1')?.value||'')); 
+    const p2   = String(($('reg-pass2')?.value||''));
 
     if (!id || !nom || !ape || !cli || !uni || !pue || !p1 || !p2) return UX.alert('Aviso','Completa todos los campos.');
     if (p1 !== p2)  return UX.alert('Aviso','Las contraseñas no coinciden.');
@@ -341,7 +348,14 @@
     }
   });
 
-  // Inicio
+  /* ============ Inicio ============ */
   loadClientes().catch(console.error);
-  if (location.hash === '#login') tabLogin?.click(); else tabRegister?.click();
+
+  // Por defecto, mostrar "Iniciar Sesión".
+  // Solo ir a "Registrarse" si la URL trae #register
+  if (location.hash === '#register') {
+    showTab('register');
+  } else {
+    showTab('login');
+  }
 })();

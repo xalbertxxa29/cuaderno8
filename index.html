@@ -6,16 +6,17 @@
   <title>Liderman - Acceso</title>
 
   <!-- Estilos -->
-  <link rel="stylesheet" href="style.css?v=54"/>
-  <link rel="stylesheet" href="webview.css?v=54"/>
+  <link rel="stylesheet" href="style.css?v=60"/>
+  <link rel="stylesheet" href="webview.css?v=60"/>
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
 
-  <!-- Meta para PWA en móviles -->
+  <!-- Meta para PWA -->
   <meta name="theme-color" content="#0d1117" />
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
 </head>
+
 <body>
   <header class="site-header"></header>
 
@@ -27,12 +28,30 @@
 
     <!-- Tabs -->
     <div class="tabs">
-      <button id="tab-login" class="tab-link">Iniciar Sesión</button>
-      <button id="tab-register" class="tab-link active">Registrarse</button>
+      <button id="tab-login" class="tab-link active">Iniciar Sesión</button>
+      <button id="tab-register" class="tab-link">Registrarse</button>
+    </div>
+
+    <!-- Login -->
+    <div id="login-tab" class="tab-content" style="display:block;">
+      <h1 class="login-title">Inicio de Sesión</h1>
+      <div class="login-card">
+        <form id="login-form" novalidate>
+          <div class="input-group">
+            <label for="login-email">Usuario (ID) o Email</label>
+            <input type="text" id="login-email" required autocomplete="username" inputmode="text" />
+          </div>
+          <div class="input-group">
+            <label for="login-pass">Contraseña</label>
+            <input type="password" id="login-pass" required autocomplete="current-password" minlength="6"/>
+          </div>
+          <button id="login-btn" type="submit" class="btn-primary">Acceder</button>
+        </form>
+      </div>
     </div>
 
     <!-- Registro -->
-    <div id="register-tab" class="tab-content" style="display:block;">
+    <div id="register-tab" class="tab-content" style="display:none;">
       <h1 class="login-title">Crear Cuenta</h1>
       <div class="login-card">
         <form id="register-form" novalidate>
@@ -56,7 +75,7 @@
               <select id="reg-cliente" required>
                 <option value="" disabled selected>Selecciona…</option>
               </select>
-              <button type="button" id="add-cliente-btn" class="btn-add-icon" title="Añadir cliente" aria-label="Añadir cliente">
+              <button type="button" id="add-cliente-btn" class="btn-add-icon" title="Añadir cliente">
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
@@ -69,7 +88,7 @@
               <select id="reg-unidad" required disabled>
                 <option value="" disabled selected>Selecciona un cliente…</option>
               </select>
-              <button type="button" id="add-unidad-btn" class="btn-add-icon" title="Añadir unidad" aria-label="Añadir unidad">
+              <button type="button" id="add-unidad-btn" class="btn-add-icon" title="Añadir unidad">
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
@@ -82,7 +101,7 @@
               <select id="reg-puesto" required disabled>
                 <option value="" disabled selected>Selecciona una unidad…</option>
               </select>
-              <button type="button" id="add-puesto-btn" class="btn-add-icon" title="Añadir puesto" aria-label="Añadir puesto">
+              <button type="button" id="add-puesto-btn" class="btn-add-icon" title="Añadir puesto">
                 <i class="fa-solid fa-plus"></i>
               </button>
             </div>
@@ -107,28 +126,9 @@
         </form>
       </div>
     </div>
-
-    <!-- Login -->
-    <div id="login-tab" class="tab-content" style="display:none;">
-      <h1 class="login-title">Inicio de Sesión</h1>
-      <div class="login-card">
-        <form id="login-form" novalidate>
-          <div class="input-group">
-            <label for="login-email">Usuario (ID) o Email</label>
-            <input type="text" id="login-email" required autocomplete="username" inputmode="text" />
-          </div>
-          <div class="input-group">
-            <label for="login-pass">Contraseña</label>
-            <input type="password" id="login-pass" required autocomplete="current-password" minlength="6"/>
-          </div>
-          <button id="login-btn" type="submit" class="btn-primary">Acceder</button>
-        </form>
-      </div>
-    </div>
   </div>
 
-  <!-- ======= MODALES NATIVOS ======= -->
-
+  <!-- ======= MODALES ======= -->
   <!-- Cliente -->
   <div id="modal-add-cliente" class="modal-overlay" style="display:none;">
     <div class="modal-box" style="max-width:440px;">
@@ -138,8 +138,8 @@
         <input id="nuevo-cliente" type="text" placeholder="Ej: LIDERMAN" autocomplete="off"/>
       </div>
       <div class="button-group" style="justify-content:flex-end;">
-        <button id="cancel-add-cliente" type="button" class="btn-secondary" style="width:auto;">Cancelar</button>
-        <button id="save-add-cliente" type="button" class="btn-primary" style="width:auto;">Guardar</button>
+        <button id="cancel-add-cliente" type="button" class="btn-secondary">Cancelar</button>
+        <button id="save-add-cliente" type="button" class="btn-primary">Guardar</button>
       </div>
     </div>
   </div>
@@ -148,14 +148,14 @@
   <div id="modal-add-unidad" class="modal-overlay" style="display:none;">
     <div class="modal-box" style="max-width:440px;">
       <h3 style="text-align:center;margin-bottom:.75rem;">Añadir Unidad</h3>
-      <p id="ctx-unidad" class="muted" style="margin-top:-.25rem;"></p>
+      <p id="ctx-unidad" class="muted"></p>
       <div class="input-group">
         <label for="nueva-unidad">Nombre de la Unidad</label>
         <input id="nueva-unidad" type="text" placeholder="Ej: CHORRILLOS" autocomplete="off"/>
       </div>
       <div class="button-group" style="justify-content:flex-end;">
-        <button id="cancel-add-unidad" type="button" class="btn-secondary" style="width:auto;">Cancelar</button>
-        <button id="save-add-unidad" type="button" class="btn-primary" style="width:auto;">Guardar</button>
+        <button id="cancel-add-unidad" type="button" class="btn-secondary">Cancelar</button>
+        <button id="save-add-unidad" type="button" class="btn-primary">Guardar</button>
       </div>
     </div>
   </div>
@@ -164,14 +164,14 @@
   <div id="modal-add-puesto" class="modal-overlay" style="display:none;">
     <div class="modal-box" style="max-width:440px;">
       <h3 style="text-align:center;margin-bottom:.75rem;">Añadir Puesto</h3>
-      <p id="ctx-puesto" class="muted" style="margin-top:-.25rem;"></p>
+      <p id="ctx-puesto" class="muted"></p>
       <div class="input-group">
         <label for="nuevo-puesto">Nombre del Puesto</label>
         <input id="nuevo-puesto" type="text" placeholder="Ej: CONTROL ACCESO" autocomplete="off"/>
       </div>
       <div class="button-group" style="justify-content:flex-end;">
-        <button id="cancel-add-puesto" type="button" class="btn-secondary" style="width:auto;">Cancelar</button>
-        <button id="save-add-puesto" type="button" class="btn-primary" style="width:auto;">Guardar</button>
+        <button id="cancel-add-puesto" type="button" class="btn-secondary">Cancelar</button>
+        <button id="save-add-puesto" type="button" class="btn-primary">Guardar</button>
       </div>
     </div>
   </div>
@@ -191,20 +191,20 @@
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore-compat.js"></script>
 
-  <!-- Config / Inicialización / Utilidades -->
-  <script src="firebase-config.js?v=51"></script>
-  <script src="initFirebase.js?v=51"></script>
-  <script src="ui.js?v=51"></script>
-  <script src="webview.js?v=54"></script>
+  <!-- Config / Inicialización -->
+  <script src="firebase-config.js?v=60"></script>
+  <script src="initFirebase.js?v=60"></script>
+  <script src="ui.js?v=60"></script>
+  <script src="webview.js?v=60"></script>
 
-  <!-- Lógica de autenticación (incluye carga de clientes/unidades/puestos y modales “+”) -->
-  <script src="auth.js?v=54"></script>
+  <!-- Lógica de autenticación -->
+  <script src="auth.js?v=56"></script>
 
-  <!-- Auto-redirect si ya hay sesión restaurada -->
+  <!-- Auto-redirect si hay sesión activa -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       try {
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         auth.onAuthStateChanged((user) => {
           if (user) window.location.replace('menu.html');
@@ -213,29 +213,13 @@
     });
   </script>
 
-  <!-- Tabs + Tema + SW -->
+  <!-- Tema + Service Worker -->
   <script>
-    // Tabs (en paralelo a lo que hace auth.js por si cargó antes)
-    (function(){
-      const tabLogin = document.getElementById('tab-login');
-      const tabRegister = document.getElementById('tab-register');
-      const loginTab = document.getElementById('login-tab');
-      const registerTab = document.getElementById('register-tab');
-      tabLogin?.addEventListener('click', () => {
-        tabLogin.classList.add('active'); tabRegister.classList.remove('active');
-        loginTab.style.display='block'; registerTab.style.display='none';
-      });
-      tabRegister?.addEventListener('click', () => {
-        tabRegister.classList.add('active'); tabLogin.classList.remove('active');
-        registerTab.style.display='block'; loginTab.style.display='none';
-      });
-    })();
-
-    // Tema (persistente)
+    // Tema persistente
     (function(){
       const root = document.documentElement;
-      const cur = localStorage.getItem('theme') || root.getAttribute('data-theme') || 'dark';
-      root.setAttribute('data-theme', cur);
+      const current = localStorage.getItem('theme') || root.getAttribute('data-theme') || 'dark';
+      root.setAttribute('data-theme', current);
       document.getElementById('themeToggle')?.addEventListener('click', ()=>{
         const next = (root.getAttribute('data-theme') === 'dark') ? 'light' : 'dark';
         root.setAttribute('data-theme', next);
@@ -245,7 +229,7 @@
 
     // Service Worker
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+      navigator.serviceWorker.register('./sw.js?v=60').catch(()=>{});
     }
   </script>
 </body>
